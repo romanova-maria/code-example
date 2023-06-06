@@ -1,21 +1,19 @@
-import {render as _render, screen} from "@testing-library/react";
-import Button from "../Button";
-import theme from "../../../styles/themes/theme";
-import {ThemeProvider} from "styled-components";
-import {PropsWithChildren, ReactElement} from "react";
+import {screen} from '@testing-library/react';
+import Button from '../Button';
+import {render} from '../../../utilities/testHelpers';
+import {axe, toHaveNoViolations} from 'jest-axe';
 
-type RenderOptions = Parameters<typeof _render>[1];
+expect.extend(toHaveNoViolations);
 
-const render = (ui: ReactElement, options?: RenderOptions) => {
-	const Wrapper = ({children}: PropsWithChildren) => {
-		return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
-	};
-
-	return _render(ui, {wrapper: Wrapper, ...options})
-}
-
-it('Should render', () => {
+it('should render', () => {
 	render(<Button testId="new-button" areaLabel="New button">New button</Button>);
 	const newButton = screen.getByTestId('new-button');
 	expect(newButton).toBeInTheDocument();
-})
+});
+
+it('should have no accessibility violations', async () => {
+	const {container} = render(<Button testId="new-button" areaLabel="New button">New button</Button>);
+	const results = await axe(container);
+
+	expect(results).toHaveNoViolations();
+});
